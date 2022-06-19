@@ -1,16 +1,16 @@
 # website_aggregator
 
-A new Flutter project.
+A personal project desgined to be a website aggregator. The program gathers 'posts' from various websites, whether through APIs or HTML scraping and displays them in one place. Allows launching said posts in the browser
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Demo
+![Alt Text](Resources/website-aggregator-demo.gif)
+## Architechture
 
-A few resources to get you started if this is your first Flutter project:
+The majority of data processing is handled through the WebsiteFolder object. This object performs functions including:
+ - Reading/Writing to files
+ - API calls
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+A <WebsiteFolder> object will hold a 2d list of <Website> objects in the attribute <websiteList>. Index i of websiteList is a list of <Website> objects corresponding to the ones dictated by <websiteTypes> (index 0 is a list of <RedditWebsite>, index 1 is a list of <GamerPowerWebsite>, etc.)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Calling WebsiteFolder methods more often than not calls a <Website> object method on every <Website> object in <this.websiteList> and puts together the results.
