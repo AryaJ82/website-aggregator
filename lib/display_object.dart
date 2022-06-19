@@ -42,7 +42,7 @@ class LaunchButtonView extends StatelessWidget {
   /// open all the displayed Post.url in the browser
   /// opened list differs depending on current tab
 
-  // current tab index, 0 is new posts, 1 is all posts
+  // current tab index, 0 is new posts, 1 is all posts, 3 is website manager
   final int index;
   // list of displayed posts objects in new posts tab
   final List<Post> posts;
@@ -68,7 +68,7 @@ class LaunchButtonView extends StatelessWidget {
             }
           },
           child: const Text("Launch All New Posts"));
-    } else {
+    } else if (index == 1) {
       return ElevatedButton(
           onPressed: () {
             for (Post post in allPosts) {
@@ -76,6 +76,8 @@ class LaunchButtonView extends StatelessWidget {
             }
           },
           child: const Text("Launch All Posts"));
+    } else {
+      return const Icon(Icons.circle);
     }
   }
 }

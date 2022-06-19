@@ -162,10 +162,11 @@ class WebsiteFolder {
   }
 
   void removeWebsite(Website website) {
-    /// Removes <website> from this.websiteList
+    /// Removes <website> from <this.websiteList>
     for (var websitesOfHostType in websiteList) {
       if (websitesOfHostType.remove(website)) break;
     }
+    saveWebsites();
   }
 }
 
