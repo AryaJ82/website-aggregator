@@ -1,9 +1,10 @@
 //////////////
 // Author: Arya Jafari, Universiy of Toronto Mississauga
-// Date of Last Update: June 8th, 2022 (08/06/22)
 // Description: A personal project desgined to be a website aggregator.
 //              The program gathers 'posts' from various websites, whether
 //              through APIs or HTML scraping and displays them in one place.
+//              Allows launching said posts in the browser
+// See website_folder.WebsiteFolder for an overview of architechture
 //////////////
 
 import 'package:flutter/material.dart';
@@ -65,17 +66,20 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _refreshNewPosts() {
+    /// Make the api calls in order to get posts from the internets
+    // begin playing loading animation (see PostTabView in display_object.dart)
     setState(() {
-      // begins playing animation (see PostTabView in display_object.dart)
       loadingPosts = true;
     });
-    // gets posts
+
+    // get the posts
     widget.websiteFolder.getPosts().then(
       (value) {
+        // update list of displayed posts
         setState(() {
-          // update list of displayed posts
           posts = value;
         });
+
         // save gotten posts to file (in order to filter form previously seen)
         widget.websiteFolder.saveWebsites();
         // stop playing loading animation
@@ -112,27 +116,22 @@ class _MyHomePageState extends State<MyHomePage>
         ],
       ),
       bottomNavigationBar: BottomAppBar(
-        //shape: shape,
         color: Colors.blue,
         child: IconTheme(
           data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
           child: Row(
             children: <Widget>[
+              // gets posts from internet
               IconButton(
                 tooltip: 'Get New Posts',
                 icon: const Icon(Icons.refresh),
                 onPressed: _refreshNewPosts,
               ),
-              IconButton(
-                tooltip: 'Launch All Posts',
-                icon: const Icon(Icons.upload),
-                onPressed: () {
-                  LaunchButtonView(
-                      index: _tabController.index,
-                      posts: posts,
-                      allPosts: widget.websiteFolder.getAllPosts());
-                },
-              ),
+              // opens currently displayed posts in webbrowser
+              LaunchButtonView(
+                  index: _tabController.index,
+                  posts: posts,
+                  allPosts: widget.websiteFolder.getAllPosts()),
             ],
           ),
         ),

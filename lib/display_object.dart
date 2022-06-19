@@ -1,8 +1,7 @@
 //////////////
 // Author: Arya Jafari, Universiy of Toronto Mississauga
-// Date of Last Update: June 8th, 2022 (08/06/22)
 // Description: Objects handling the UI of the website aggregator app.
-//              Communicate heavily with <WebsiteFolder> objects
+//              Communicate heavily with the <WebsiteFolder> object
 //////////////
 
 import 'package:flutter/material.dart';
@@ -10,7 +9,8 @@ import 'package:website_fetcher/website_folder_object.dart';
 import 'website_object.dart';
 
 class PostTabView extends StatelessWidget {
-  // A class for both the new posts tab and all posts tabs
+  /// A class for both the new posts tab and all posts tab
+  /// makes a ListView object of the given list of Post objects
   final List<Post> posts;
   final bool loadingPosts;
 
@@ -21,6 +21,7 @@ class PostTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (loadingPosts) {
       // currently in the process of gettting posts from the internet
+      // display loading animation
       return const SizedBox(
           height: 60.0,
           width: 60.0,
@@ -38,8 +39,14 @@ class PostTabView extends StatelessWidget {
 }
 
 class LaunchButtonView extends StatelessWidget {
+  /// open all the displayed Post.url in the browser
+  /// opened list differs depending on current tab
+
+  // current tab index, 0 is new posts, 1 is all posts
   final int index;
+  // list of displayed posts objects in new posts tab
   final List<Post> posts;
+  // list of displayed posts in all posts tab
   final List<Post> allPosts;
 
   const LaunchButtonView(
@@ -52,6 +59,7 @@ class LaunchButtonView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // index either 0 or 1
+    // either new posts tab ot all posts tab
     if (index == 0) {
       return ElevatedButton(
           onPressed: () {
@@ -73,7 +81,7 @@ class LaunchButtonView extends StatelessWidget {
 }
 
 class WebsiteManagerTabView extends StatefulWidget {
-  // A class specifically for the website manager tab
+  /// A class specifically for the website manager tab
   final WebsiteFolder websiteFolder;
 
   const WebsiteManagerTabView({Key? key, required this.websiteFolder})
@@ -92,7 +100,9 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
   Widget _displayWebsiteManagerFrame(BuildContext context) {
     List<Widget> websiteCards = [];
     for (int i = 0; i < WebsiteFolder.websiteTypes.length; i++) {
+      // header card marks division of website types
       websiteCards.add(_makeHeaderCard(WebsiteFolder.websiteTypes[i]));
+      // list of websites under hostType = websiteTypes[i]
       try {
         websiteCards.add(_displayWebsiteType(
           context,
@@ -130,11 +140,14 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
               trailing: IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () {
+                  // pop up form for adding new website
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return _FormView(
-                            websiteTabStatefulObject: this, hostType: hostType);
+                          websiteTabStatefulObject: this,
+                          hostType: hostType,
+                        );
                       });
                 },
               ),
@@ -146,6 +159,7 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
   }
 
   Widget _displayWebsiteType(BuildContext context, List<dynamic> websites) {
+    /// Builds the all websites of given <websites> list
     return Center(
       child: Column(
         children: <Widget>[
@@ -156,6 +170,7 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
   }
 
   Widget _buildWebsite(BuildContext context, Website w) {
+    /// Builds the ListTile of Website object <w>.
     return ListTile(
       title: Text(w.name),
       subtitle: Text(w.path),
@@ -177,6 +192,9 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
   }
 
   void _updateWebsiteList(String hostType, String path, String name) {
+    /// Rebuilds website manager tab after adding a new website
+    /// A very hacky work around to keep <Form> and <WebsiteManagerTab> objects
+    /// separate from each other
     setState(() {
       widget.websiteFolder.addWebsite(hostType, path, name);
     });
@@ -184,12 +202,12 @@ class _WebsiteManagerTabStateful extends State<WebsiteManagerTabView> {
 }
 
 class _FormView extends StatefulWidget {
+  /// Class which creates the form for creating new website objects
   final String hostType;
   final _WebsiteManagerTabStateful websiteTabStatefulObject;
 
   const _FormView(
       {Key? key,
-      //required this.websiteFolder,
       required this.hostType,
       required this.websiteTabStatefulObject})
       : super(key: key);
@@ -199,11 +217,12 @@ class _FormView extends StatefulWidget {
 }
 
 class _FormStateful extends State<_FormView> {
-  //with State<WebsiteManagerTabView>{
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // stored the values inputted by the user
   static final List<String> inputParams = <String>['', ''];
   // [0] : name
   // [1] : url/path
+  // necessary to extract the inputs taken from _textInputBox-es
 
   @override
   Widget build(BuildContext context) {
@@ -266,15 +285,25 @@ class _FormStateful extends State<_FormView> {
 }
 
 class BuildPost extends StatelessWidget {
+  /// Class which builds the given post as a listview tile widget
   final Post post;
 
   const BuildPost({Key? key, required this.post}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Below gives errors when not connected to the internet
-    // or when url fails to resolve
     final Widget img = Image.network(
+      post.imageUrl,
+      errorBuilder: (context, error, stackTrace) {
+        if (post.imageUrl != "") {
+          debugPrint("Failed to load image at url: ${post.imageUrl}");
+          debugPrint("error (may be null): $error \n");
+        }
+        return const Icon(Icons.link_off);
+      },
+    );
+
+    Image.network(
       post.imageUrl,
       errorBuilder: (context, error, stackTrace) {
         if (post.imageUrl != "") {

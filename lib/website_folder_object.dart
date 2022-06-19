@@ -1,6 +1,5 @@
 //////////////
 // Author: Arya Jafari, Universiy of Toronto Mississauga
-// Date of Last Update: June 8th, 2022 (08/06/22)
 // Description: Object that handles the information gathered by webites. Stores
 //              <Website> objects.
 //////////////
@@ -13,6 +12,14 @@ import 'dart:io';
 import 'website_object.dart';
 
 class WebsiteFolder {
+  /// This object handles the majority of data processing, inlcuding:
+  /// - Reading/Writing to files
+  /// - API calls
+  ///
+  /// A <WebsiteFolder> object will hold a 2d list of <Website> objects
+  /// in the attribute <websiteList>.
+  /// Index i of websiteList is a list of <Website> objects corresponding to
+  /// the ones dictated by <websiteTypes> (index 0 is a list of <RedditWebsite>)
   static const websiteTypes = ['Reddit', 'GamerPower'];
   // If the above is modified, the following locations must be updated:
   // _makeWebsiteObject
@@ -24,6 +31,11 @@ class WebsiteFolder {
   }
 
   Future<List<Post>> getPosts() async {
+    /// Returns a list of Posts gotten by calling Website.getPosts()
+    /// Only runs said method if Website.load is true
+    /// Returned list is filtered against itself to remove duplicate Post objects
+    /// which reference the same Post.url
+
     final List<Future<List<Post>>> temp = [];
     final List<Post> posts = [];
     // temp holds the future objects which represent lists of posts gotten from
@@ -34,6 +46,8 @@ class WebsiteFolder {
         if (websiteList[i][k].load) temp.add(websiteList[i][k].getPosts());
       }
     }
+    // Wait for all Future objects returned by Website.getPosts() to return
+    // their values
     final pmet = await Future.wait(temp);
     for (int i = 0; i < temp.length; i++) {
       posts.addAll(pmet[i]);
@@ -45,6 +59,10 @@ class WebsiteFolder {
   }
 
   void _loadFileContents() async {
+    /// Load the json file at
+    /// "_localPath/flutter_website_fetcher/stored_websites.json"
+    /// _localPath is Documents directory on Linux/Windows
+    /// json file contains stored <Website> objects
     try {
       final file = await File(
               "${await _localPath}/flutter_website_fetcher/stored_websites.json")
@@ -68,6 +86,10 @@ class WebsiteFolder {
   }
 
   Future<File> saveWebsites() async {
+    /// Save the contents of this.websiteList in json format at location:
+    /// "_localPath/flutter_website_fetcher/stored_websites.json"
+    /// _localPath is Documents directory on Linux/Windows
+    /// json file contains new stored <Website> objects
     final file = File(
         "${await _localPath}/flutter_website_fetcher/stored_websites.json");
     final Map<String, dynamic> j = {};
@@ -85,6 +107,8 @@ class WebsiteFolder {
   }
 
   List<Post> getAllPosts() {
+    /// return the concatenated list of Website.prevPosts of all <Website>s in
+    /// <this.websiteList>
     List<Post> allPosts = [];
     for (int i = 0; i < websiteList.length; i++) {
       for (Website w in websiteList[i]) {
@@ -95,6 +119,10 @@ class WebsiteFolder {
   }
 
   Website _makeWebsiteObject(Map<String, dynamic> w, String hostType) {
+    /// Makes a <Website> object of implementation flavour <hostType>
+    /// E.g. hostType == 'Reddit' makes a <RedditWebsite> object
+    /// w is a map with the following keys: path, name, load, previousPosts
+    /// which correspond to the keys of the same name is <Website> objects
     switch (hostType) {
       case 'Reddit':
         {
@@ -125,7 +153,8 @@ class WebsiteFolder {
   }
 
   void addWebsite(String hostType, String path, String name) {
-    // error with empty list
+    /// Make a <Website> object of hostType <hostType>, name <name> etc.
+    /// and adds it to the correct index of this.websiteTypes
     websiteList[websiteTypes.indexOf(hostType)].add(_makeWebsiteObject(
         {"name": name, "path": path, "load": true, "previousPosts": []},
         hostType));
@@ -133,6 +162,7 @@ class WebsiteFolder {
   }
 
   void removeWebsite(Website website) {
+    /// Removes <website> from this.websiteList
     for (var websitesOfHostType in websiteList) {
       if (websitesOfHostType.remove(website)) break;
     }
