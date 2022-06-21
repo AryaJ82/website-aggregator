@@ -11,6 +11,6 @@ The majority of data processing is handled through the WebsiteFolder object. Thi
  - Reading/Writing to files
  - API calls
 
-A <WebsiteFolder> object will hold a 2d list of <Website> objects in the attribute <websiteList>. Index i of websiteList is a list of <Website> objects corresponding to the ones dictated by <websiteTypes> (index 0 is a list of <RedditWebsite>, index 1 is a list of <GamerPowerWebsite>, etc.)
+A \<WebsiteFolder\> object will hold a 2d list of \<Website\> objects in the attribute \<websiteList\>. Index i of websiteList is a list of \<Website\> objects corresponding to the ones dictated by \<websiteTypes\> (index 0 is a list of \<RedditWebsite\>, index 1 is a list of \<GamerPowerWebsite\>, etc.)
 
-Calling WebsiteFolder methods more often than not calls a <Website> object method on every <Website> object in <this.websiteList> and puts together the results.
+Calling WebsiteFolder methods more often than not calls a \<Website\> object method on every \<Website\> object in \<this.websiteList\> and puts together the results.
